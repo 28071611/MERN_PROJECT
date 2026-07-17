@@ -45,14 +45,14 @@ const Home = ({ user }) => {
       {/* Hero Section */}
       <div style={{ textAlign: 'center', marginBottom: '80px' }}>
         <h1 style={{
-          fontSize: '4rem',
-          fontWeight: 800,
-          background: 'linear-gradient(135deg, #fff 0%, #a5b4fc 50%, var(--color-brand) 100%)',
+          fontSize: '4.5rem',
+          fontWeight: 600,
+          background: 'linear-gradient(135deg, #fafafa 0%, #d4af37 50%, #f4cf57 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          marginBottom: '20px',
+          marginBottom: '24px',
           lineHeight: 1.1,
-          textShadow: '0 0 40px rgba(99,102,241,0.3)'
+          letterSpacing: '-0.02em'
         }}>
           Lost it? Find it.<br/>Found it? Return it.
         </h1>

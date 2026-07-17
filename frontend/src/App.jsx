@@ -76,7 +76,7 @@ function App() {
           background: 'rgba(5, 8, 20, 0.4)'
         }}>
           <div className="container">
-            © {new Date().getFullYear()} Retrievo Portal (MERN Stack). All rights reserved.
+            © {new Date().getFullYear()} Lumina Portal (MERN Stack). All rights reserved.
           </div>
         </footer>
       </div>

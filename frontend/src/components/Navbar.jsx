@@ -33,18 +33,18 @@ const Navbar = ({ user, onLogout }) => {
           color: 'var(--text-primary)'
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, var(--color-brand) 0%, #4f46e5 100%)',
-            width: '36px',
-            height: '36px',
-            borderRadius: '8px',
+            background: 'linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-secondary) 100%)',
+            width: '40px',
+            height: '40px',
+            borderRadius: '10px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 15px rgba(99,102,241,0.4)'
+            boxShadow: '0 4px 20px rgba(212,175,55,0.3)'
           }}>
-            <Compass size={18} color="#fff" />
+            <Compass size={20} color="#050508" />
           </div>
-          <span>Retriev<span style={{ color: 'var(--color-brand)' }}>o</span></span>
+          <span>Lumina</span>
         </Link>
 
         {/* Links */}
