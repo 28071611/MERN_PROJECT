@@ -77,6 +77,13 @@ const ReportItem = ({ user }) => {
 
     const method = isEdit ? 'PUT' : 'POST';
 
+    // Check if user has token
+    if (!user || !user.token) {
+      setError('Authentication error: Please log in again.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(url, {
         method,
@@ -91,7 +98,14 @@ const ReportItem = ({ user }) => {
         navigate('/dashboard');
       } else {
         const data = await response.json();
-        setError(data.message || 'Operation failed.');
+        if (response.status === 401) {
+          setError('Session expired. Please log in again.');
+          // Clear invalid user data
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        } else {
+          setError(data.message || 'Operation failed.');
+        }
       }
     } catch {
       setError('Cannot connect to server.');

@@ -9,6 +9,13 @@ const AdminDashboard = ({ user }) => {
   const [error, setError] = useState('');
 
   const fetchAdminData = async () => {
+    if (!user || !user.token) {
+      setError('Authentication error. Please log in again.');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+      return;
+    }
+    
     setLoading(true);
     setError('');
     try {
@@ -19,6 +26,11 @@ const AdminDashboard = ({ user }) => {
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData);
+      } else if (statsRes.status === 401) {
+        setError('Session expired. Please log in again.');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        return;
       }
 
       // Fetch Users list
@@ -28,6 +40,11 @@ const AdminDashboard = ({ user }) => {
       if (usersRes.ok) {
         const usersData = await usersRes.json();
         setUsersList(usersData);
+      } else if (usersRes.status === 401) {
+        setError('Session expired. Please log in again.');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        return;
       }
 
       // Fetch all items list for direct control
@@ -44,7 +61,7 @@ const AdminDashboard = ({ user }) => {
   };
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !user.token) return;
     const run = async () => {
       setLoading(true);
       setError('');
@@ -56,6 +73,11 @@ const AdminDashboard = ({ user }) => {
         if (statsRes.ok) {
           const statsData = await statsRes.json();
           setStats(statsData);
+        } else if (statsRes.status === 401) {
+          setError('Session expired. Please log in again.');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+          return;
         }
 
         const usersRes = await fetch('http://localhost:5000/api/admin/users', {
@@ -64,6 +86,11 @@ const AdminDashboard = ({ user }) => {
         if (usersRes.ok) {
           const usersData = await usersRes.json();
           setUsersList(usersData);
+        } else if (usersRes.status === 401) {
+          setError('Session expired. Please log in again.');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+          return;
         }
 
         const itemsRes = await fetch('http://localhost:5000/api/items');
@@ -82,6 +109,14 @@ const AdminDashboard = ({ user }) => {
 
   const handleDeleteUser = async (userId) => {
     if (!window.confirm('Deleting this user will permanently remove their profile and all items they reported. Proceed?')) return;
+    
+    if (!user || !user.token) {
+      alert('Authentication error. Please log in again.');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+      return;
+    }
+    
     try {
       const response = await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
         method: 'DELETE',
@@ -90,6 +125,10 @@ const AdminDashboard = ({ user }) => {
 
       if (response.ok) {
         fetchAdminData(); // Refresh all datasets
+      } else if (response.status === 401) {
+        alert('Session expired. Please log in again.');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
       } else {
         alert('Could not complete deletion request.');
       }
@@ -100,6 +139,14 @@ const AdminDashboard = ({ user }) => {
 
   const handleDeleteItem = async (itemId) => {
     if (!window.confirm('Are you sure you want to delete this reported item?')) return;
+    
+    if (!user || !user.token) {
+      alert('Authentication error. Please log in again.');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+      return;
+    }
+    
     try {
       const response = await fetch(`http://localhost:5000/api/items/${itemId}`, {
         method: 'DELETE',
@@ -108,6 +155,10 @@ const AdminDashboard = ({ user }) => {
 
       if (response.ok) {
         fetchAdminData();
+      } else if (response.status === 401) {
+        alert('Session expired. Please log in again.');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
       } else {
         alert('Could not complete deletion request.');
       }

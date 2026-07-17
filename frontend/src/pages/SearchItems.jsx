@@ -66,6 +66,11 @@ const SearchItems = ({ user }) => {
   };
 
   const handleViewMatches = async (item) => {
+    if (!user || !user.token) {
+      alert('Please log in to view matches.');
+      return;
+    }
+    
     setSelectedItemForMatch(item);
     setLoadingMatches(true);
     setMatchingItems([]);
@@ -79,6 +84,10 @@ const SearchItems = ({ user }) => {
       if (response.ok) {
         const data = await response.json();
         setMatchingItems(data);
+      } else if (response.status === 401) {
+        alert('Session expired. Please log in again.');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
       }
     } catch {
       console.error('Error fetching matches.');
@@ -89,6 +98,14 @@ const SearchItems = ({ user }) => {
 
   const handleDelete = async (itemId) => {
     if (!window.confirm('Are you sure you want to delete this report?')) return;
+    
+    if (!user || !user.token) {
+      alert('Authentication error. Please log in again.');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+      return;
+    }
+    
     try {
       const response = await fetch(`http://localhost:5000/api/items/${itemId}`, {
         method: 'DELETE',
@@ -99,6 +116,10 @@ const SearchItems = ({ user }) => {
 
       if (response.ok) {
         setItems(items.filter(item => (item._id || item.id) !== itemId));
+      } else if (response.status === 401) {
+        alert('Session expired. Please log in again.');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
       } else {
         alert('Failed to delete report.');
       }

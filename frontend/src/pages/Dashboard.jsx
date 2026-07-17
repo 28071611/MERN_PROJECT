@@ -17,6 +17,10 @@ const Dashboard = ({ user }) => {
       if (response.ok) {
         const data = await response.json();
         setItems(data);
+      } else if (response.status === 401) {
+        setError('Session expired. Please log in again.');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
       } else {
         setError('Failed to fetch reported items.');
       }
@@ -28,7 +32,7 @@ const Dashboard = ({ user }) => {
   };
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !user.token) return;
     const run = async () => {
       setLoading(true);
       try {
@@ -39,6 +43,10 @@ const Dashboard = ({ user }) => {
           const data = await response.json();
           setItems(data);
           setError('');
+        } else if (response.status === 401) {
+          setError('Session expired. Please log in again.');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
         } else {
           setError('Failed to fetch reported items.');
         }
@@ -54,6 +62,13 @@ const Dashboard = ({ user }) => {
   const handleDelete = async (itemId) => {
     if (!window.confirm('Are you sure you want to delete this report?')) return;
     
+    if (!user || !user.token) {
+      alert('Authentication error. Please log in again.');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+      return;
+    }
+    
     try {
       const response = await fetch(`http://localhost:5000/api/items/${itemId}`, {
         method: 'DELETE',
@@ -64,6 +79,10 @@ const Dashboard = ({ user }) => {
 
       if (response.ok) {
         setItems(items.filter(item => (item._id || item.id) !== itemId));
+      } else if (response.status === 401) {
+        alert('Session expired. Please log in again.');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
       } else {
         alert('Failed to delete report.');
       }
@@ -73,6 +92,13 @@ const Dashboard = ({ user }) => {
   };
 
   const handleStatusChange = async (itemId, newStatus) => {
+    if (!user || !user.token) {
+      alert('Authentication error. Please log in again.');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+      return;
+    }
+    
     try {
       const response = await fetch(`http://localhost:5000/api/items/${itemId}`, {
         method: 'PUT',
@@ -85,6 +111,10 @@ const Dashboard = ({ user }) => {
 
       if (response.ok) {
         fetchMyItems(); // Refresh items
+      } else if (response.status === 401) {
+        alert('Session expired. Please log in again.');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
       } else {
         alert('Failed to update status.');
       }
