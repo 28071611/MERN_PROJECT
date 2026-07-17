@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Compass, SlidersHorizontal, Sparkles, X, ChevronRight } from 'lucide-react';
 import ItemCard from '../components/ItemCard';
 
@@ -46,16 +46,19 @@ const SearchItems = ({ user }) => {
         const data = await response.json();
         setItems(data);
       }
-    } catch (err) {
-      console.error('Error fetching items:', err);
+    } catch {
+      console.error('Error fetching items.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchItems();
-  }, [searchType, category]); // fetch automatically when category or type changes
+    const run = async () => {
+      await fetchItems();
+    };
+    run();
+  }, [searchType, category]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -77,8 +80,8 @@ const SearchItems = ({ user }) => {
         const data = await response.json();
         setMatchingItems(data);
       }
-    } catch (err) {
-      console.error('Error fetching matches:', err);
+    } catch {
+      console.error('Error fetching matches.');
     } finally {
       setLoadingMatches(false);
     }
@@ -99,7 +102,7 @@ const SearchItems = ({ user }) => {
       } else {
         alert('Failed to delete report.');
       }
-    } catch (err) {
+    } catch {
       alert('Error connecting to backend.');
     }
   };

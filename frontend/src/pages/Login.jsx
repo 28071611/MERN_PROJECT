@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { LogIn, Mail, Lock } from 'lucide-react';
 
@@ -31,7 +31,7 @@ const Login = ({ onLogin }) => {
       } else {
         setError(data.message || 'Login failed. Please check credentials.');
       }
-    } catch (err) {
+    } catch {
       setError('Cannot connect to backend server.');
     } finally {
       setLoading(false);

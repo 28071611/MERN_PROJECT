@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Compass, Shield, ArrowRight, Activity, Smile, FileText } from 'lucide-react';
+import { Search, Compass, ArrowRight, Activity, Smile, FileText } from 'lucide-react';
 import ItemCard from '../components/ItemCard';
 
 const Home = ({ user }) => {
@@ -45,13 +45,14 @@ const Home = ({ user }) => {
       {/* Hero Section */}
       <div style={{ textAlign: 'center', marginBottom: '80px' }}>
         <h1 style={{
-          fontSize: '3.5rem',
+          fontSize: '4rem',
           fontWeight: 800,
-          background: 'linear-gradient(135deg, #fff 0%, #cbd5e1 50%, var(--color-brand) 100%)',
+          background: 'linear-gradient(135deg, #fff 0%, #a5b4fc 50%, var(--color-brand) 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           marginBottom: '20px',
-          lineHeight: 1.1
+          lineHeight: 1.1,
+          textShadow: '0 0 40px rgba(99,102,241,0.3)'
         }}>
           Lost it? Find it.<br/>Found it? Return it.
         </h1>

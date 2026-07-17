@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { User, Mail, Calendar, Compass, ShieldAlert, Award, FileSpreadsheet } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Mail, Calendar, FileSpreadsheet } from 'lucide-react';
 import ItemCard from '../components/ItemCard';
 
 const Dashboard = ({ user }) => {
@@ -20,7 +20,7 @@ const Dashboard = ({ user }) => {
       } else {
         setError('Failed to fetch reported items.');
       }
-    } catch (err) {
+    } catch {
       setError('Cannot connect to backend server.');
     } finally {
       setLoading(false);
@@ -28,7 +28,27 @@ const Dashboard = ({ user }) => {
   };
 
   useEffect(() => {
-    fetchMyItems();
+    if (!user) return;
+    const run = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('http://localhost:5000/api/items/my', {
+          headers: { 'Authorization': `Bearer ${user.token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setItems(data);
+          setError('');
+        } else {
+          setError('Failed to fetch reported items.');
+        }
+      } catch {
+        setError('Cannot connect to backend server.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    run();
   }, [user]);
 
   const handleDelete = async (itemId) => {
@@ -47,7 +67,7 @@ const Dashboard = ({ user }) => {
       } else {
         alert('Failed to delete report.');
       }
-    } catch (err) {
+    } catch {
       alert('Error connecting to backend.');
     }
   };
@@ -68,7 +88,7 @@ const Dashboard = ({ user }) => {
       } else {
         alert('Failed to update status.');
       }
-    } catch (err) {
+    } catch {
       alert('Error connecting to backend.');
     }
   };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus, Mail, Lock, User } from 'lucide-react';
 
@@ -32,7 +32,7 @@ const Register = ({ onLogin }) => {
       } else {
         setError(data.message || 'Registration failed.');
       }
-    } catch (err) {
+    } catch {
       setError('Cannot connect to backend server.');
     } finally {
       setLoading(false);

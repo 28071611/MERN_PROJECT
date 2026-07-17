@@ -1,41 +1,38 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+/* Optional web fonts for a warmer, handcrafted feel */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Merriweather:wght@300;400;700&display=swap');
 
 :root {
-  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: 'Merriweather', Georgia, serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  /* Color Palette - Premium Dark Theme */
-  --bg-primary: hsl(224, 71%, 4%);
-  --bg-secondary: hsl(222, 47%, 7%);
-  --bg-tertiary: hsl(223, 47%, 12%);
-  --bg-card: hsla(223, 47%, 10%, 0.7);
-  
-  --text-primary: hsl(210, 40%, 98%);
-  --text-secondary: hsl(215, 20%, 75%);
-  --text-muted: hsl(215, 16%, 55%);
+  /* Modern, vibrant dark theme */
+  --bg-primary: #0a0e1a; /* deep space blue */
+  --bg-secondary: #0d1221;
+  --bg-tertiary: #111827;
+  --bg-card: rgba(255,255,255,0.03);
 
-  --color-brand: hsl(263, 90%, 62%);
-  --color-brand-glow: hsla(263, 90%, 62%, 0.35);
-  
-  --color-lost: hsl(354, 84%, 57%);
-  --color-lost-glow: hsla(354, 84%, 57%, 0.25);
-  
-  --color-found: hsl(142, 71%, 45%);
-  --color-found-glow: hsla(142, 71%, 45%, 0.25);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
 
-  --color-border: hsl(223, 30%, 18%);
-  --color-border-active: hsl(263, 90%, 62%);
+  --color-brand: #6366f1; /* modern indigo */
+  --color-brand-hover: #818cf8;
+  --color-lost: #ef4444; /* vibrant red */
+  --color-found: #10b981; /* vibrant green */
+  --color-lost-glow: rgba(239,68,68,0.15);
+  --color-found-glow: rgba(16,185,129,0.15);
+  --color-brand-glow: rgba(99,102,241,0.15);
 
-  /* Layout and Shadow Tokens */
+  --color-border: rgba(255,255,255,0.08);
+  --color-border-active: rgba(99,102,241,0.3);
+
   --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 30px;
-  
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.7);
-  --shadow-glow: 0 0 20px var(--color-brand-glow);
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --shadow-sm: 0 4px 20px rgba(0,0,0,0.4);
+  --shadow-md: 0 8px 30px rgba(0,0,0,0.5);
+  --shadow-glow: 0 0 40px rgba(99,102,241,0.15);
 
   --transition-fast: 0.15s ease;
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -56,11 +53,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   overflow-x: hidden;
+  /* Modern gradient background */
   background-image: 
-    radial-gradient(at 0% 0%, hsla(263, 90%, 62%, 0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, hsla(142, 71%, 45%, 0.04) 0px, transparent 50%),
-    radial-gradient(at 50% 50%, hsla(223, 47%, 7%, 0.9) 0px, var(--bg-primary) 100%);
-  background-attachment: fixed;
+    radial-gradient(ellipse at top, rgba(99,102,241,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(16,185,129,0.05) 0%, transparent 50%),
+    linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -106,79 +103,93 @@ button, input, textarea, select {
 /* Glowing Elements */
 .glow-card {
   background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   transition: var(--transition-normal);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .glow-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: var(--shadow-lg), 0 0 25px rgba(255, 255, 255, 0.03);
+  border-color: var(--color-border-active);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
   transform: translateY(-4px);
 }
 
-/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 24px;
+  padding: 10px 18px;
   font-weight: 600;
   border-radius: var(--radius-md);
-  border: none;
+  border: 1px solid var(--color-border);
   cursor: pointer;
   transition: var(--transition-normal);
   font-size: 0.95rem;
+  color: var(--text-primary);
+  background: transparent;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-brand) 0%, hsl(263, 85%, 55%) 100%);
+  background: linear-gradient(135deg, var(--color-brand) 0%, #4f46e5 100%);
   color: #fff;
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 15px rgba(99,102,241,0.4);
+  border: none;
+  position: relative;
+  overflow: hidden;
 }
 
-.btn-primary:hover {
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:hover { 
+  transform: translateY(-2px); 
+  box-shadow: 0 6px 20px rgba(99,102,241,0.5);
+}
+.btn-secondary:hover { 
+  background: var(--color-border); 
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45), var(--shadow-glow);
-  filter: brightness(1.1);
-}
-
-.btn-secondary {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--color-border);
-}
-
-.btn-secondary:hover {
-  background: var(--color-border);
-  transform: translateY(-2px);
+  border-color: var(--color-border-active);
 }
 
 .btn-danger {
-  background: linear-gradient(135deg, var(--color-lost) 0%, hsl(354, 80%, 50%) 100%);
+  background: linear-gradient(135deg, var(--color-lost) 0%, #dc2626 100%);
   color: #fff;
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+  border: none;
 }
 
 .btn-danger:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
   filter: brightness(1.1);
 }
 
 .btn-success {
-  background: linear-gradient(135deg, var(--color-found) 0%, hsl(142, 65%, 40%) 100%);
+  background: linear-gradient(135deg, var(--color-found) 0%, #059669 100%);
   color: #fff;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  border: none;
 }
 
 .btn-success:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
   filter: brightness(1.1);
 }
 
@@ -203,13 +214,13 @@ button, input, textarea, select {
   padding: 12px 16px;
   color: var(--text-primary);
   font-size: 1rem;
-  transition: var(--transition-fast);
+  transition: var(--transition-normal);
   outline: none;
 }
 
 .form-control:focus {
-  border-color: var(--color-border-active);
-  box-shadow: 0 0 0 3px var(--color-brand-glow);
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.2), 0 4px 12px rgba(0,0,0,0.3);
 }
 
 /* Badges */
@@ -226,13 +237,15 @@ button, input, textarea, select {
 .badge-lost {
   background: var(--color-lost-glow);
   color: var(--color-lost);
-  border: 1px solid hsla(354, 84%, 57%, 0.3);
+  border: 1px solid rgba(239,68,68,0.3);
+  box-shadow: 0 0 10px rgba(239,68,68,0.2);
 }
 
 .badge-found {
   background: var(--color-found-glow);
   color: var(--color-found);
-  border: 1px solid hsla(142, 71%, 45%, 0.3);
+  border: 1px solid rgba(16,185,129,0.3);
+  box-shadow: 0 0 10px rgba(16,185,129,0.2);
 }
 
 .badge-resolved {
@@ -267,18 +280,22 @@ button, input, textarea, select {
   align-items: center;
   gap: 12px;
   font-weight: 500;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .alert-banner-info {
-  background: rgba(59, 130, 246, 0.15);
+  background: rgba(59, 130, 246, 0.2);
   color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
 }
 
 .alert-banner-success {
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(16, 185, 129, 0.2);
   color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
 }
 
 /* Scrollbar customization */
@@ -291,7 +308,9 @@ button, input, textarea, select {
 ::-webkit-scrollbar-thumb {
   background: var(--bg-tertiary);
   border-radius: 5px;
+  border: 1px solid var(--color-border);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-border);
+  border-color: var(--color-border-active);
 }

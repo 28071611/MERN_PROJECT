@@ -1,4 +1,3 @@
-import React from 'react';
 import { MapPin, Calendar, Phone, Trash2, Edit2, CheckCircle, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -56,10 +55,10 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
         </div>
 
         <h3 style={{
-          fontSize: '1.25rem',
-          color: '#fff',
+          fontSize: '1.15rem',
+          color: 'var(--text-primary)',
           marginBottom: '8px',
-          fontWeight: 700
+          fontWeight: 600
         }}>
           {item.name}
         </h3>
@@ -89,7 +88,7 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
         {/* Contact details */}
         <div style={{
           padding: '12px 16px',
-          background: 'rgba(255,255,255,0.03)',
+          background: 'transparent',
           borderRadius: 'var(--radius-sm)',
           border: '1px solid var(--color-border)',
           fontSize: '0.85rem',
@@ -126,8 +125,9 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
-              borderColor: 'var(--color-brand)',
-              color: '#d8b4fe'
+              borderColor: 'var(--color-border)',
+              color: 'var(--text-secondary)',
+              background: 'transparent'
             }}
           >
             <Sparkles size={12} />

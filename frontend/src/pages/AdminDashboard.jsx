@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Users, Trash, Award, Database, RefreshCw, BarChart2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ShieldAlert, Users, Trash, Award, Database, RefreshCw } from 'lucide-react';
 
 const AdminDashboard = ({ user }) => {
   const [stats, setStats] = useState(null);
@@ -36,7 +36,7 @@ const AdminDashboard = ({ user }) => {
         const itemsData = await itemsRes.json();
         setItemsList(itemsData);
       }
-    } catch (err) {
+    } catch {
       setError('Error communicating with administration backend services.');
     } finally {
       setLoading(false);
@@ -44,7 +44,40 @@ const AdminDashboard = ({ user }) => {
   };
 
   useEffect(() => {
-    fetchAdminData();
+    if (!user) return;
+    const run = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        // Fetch Stats
+        const statsRes = await fetch('http://localhost:5000/api/admin/stats', {
+          headers: { 'Authorization': `Bearer ${user.token}` }
+        });
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          setStats(statsData);
+        }
+
+        const usersRes = await fetch('http://localhost:5000/api/admin/users', {
+          headers: { 'Authorization': `Bearer ${user.token}` }
+        });
+        if (usersRes.ok) {
+          const usersData = await usersRes.json();
+          setUsersList(usersData);
+        }
+
+        const itemsRes = await fetch('http://localhost:5000/api/items');
+        if (itemsRes.ok) {
+          const itemsData = await itemsRes.json();
+          setItemsList(itemsData);
+        }
+      } catch {
+        setError('Error communicating with administration backend services.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    run();
   }, [user]);
 
   const handleDeleteUser = async (userId) => {
@@ -60,7 +93,7 @@ const AdminDashboard = ({ user }) => {
       } else {
         alert('Could not complete deletion request.');
       }
-    } catch (err) {
+    } catch {
       alert('Connection error.');
     }
   };
@@ -78,7 +111,7 @@ const AdminDashboard = ({ user }) => {
       } else {
         alert('Could not complete deletion request.');
       }
-    } catch (err) {
+    } catch {
       alert('Connection error.');
     }
   };

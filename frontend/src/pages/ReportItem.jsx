@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FilePlus, Edit, ArrowLeft, Send } from 'lucide-react';
 
@@ -51,7 +51,7 @@ const ReportItem = ({ user }) => {
           } else {
             setError('Failed to load item details.');
           }
-        } catch (err) {
+        } catch {
           setError('Server connection failed.');
         }
       };
@@ -93,7 +93,7 @@ const ReportItem = ({ user }) => {
         const data = await response.json();
         setError(data.message || 'Operation failed.');
       }
-    } catch (err) {
+    } catch {
       setError('Cannot connect to server.');
     } finally {
       setLoading(false);

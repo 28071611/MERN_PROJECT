@@ -1,6 +1,5 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, PlusCircle, User, LogOut, Shield, Compass, Layers } from 'lucide-react';
+import { Search, PlusCircle, User, LogOut, Shield, Compass } from 'lucide-react';
 
 const Navbar = ({ user, onLogout }) => {
   const navigate = useNavigate();
@@ -13,8 +12,7 @@ const Navbar = ({ user, onLogout }) => {
   return (
     <nav style={{
       borderBottom: '1px solid var(--color-border)',
-      background: 'rgba(7, 10, 22, 0.8)',
-      backdropFilter: 'blur(12px)',
+      background: 'var(--bg-secondary)',
       position: 'sticky',
       top: 0,
       zIndex: 100
@@ -30,22 +28,21 @@ const Navbar = ({ user, onLogout }) => {
           display: 'flex',
           alignItems: 'center',
           gap: 10,
-          fontWeight: 800,
-          fontSize: '1.4rem',
-          color: '#fff',
-          fontFamily: 'var(--font-heading)'
+          fontWeight: 700,
+          fontSize: '1.25rem',
+          color: 'var(--text-primary)'
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, var(--color-brand) 0%, #a78bfa 100%)',
+            background: 'linear-gradient(135deg, var(--color-brand) 0%, #4f46e5 100%)',
             width: '36px',
             height: '36px',
-            borderRadius: '10px',
+            borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 0 15px var(--color-brand-glow)'
+            boxShadow: '0 4px 15px rgba(99,102,241,0.4)'
           }}>
-            <Compass size={20} color="#fff" />
+            <Compass size={18} color="#fff" />
           </div>
           <span>Retriev<span style={{ color: 'var(--color-brand)' }}>o</span></span>
         </Link>
