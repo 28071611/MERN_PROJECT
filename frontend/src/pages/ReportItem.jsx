@@ -29,6 +29,13 @@ const ReportItem = ({ user }) => {
     contact: ''
   });
 
+  // Support detailed location and images
+  // fields: building, block, floor, room, area, images (FileList)
+  useEffect(() => {
+    setFormData(fd => ({ ...fd, building: fd.building || '', block: fd.block || '', floor: fd.floor || '', room: fd.room || '', area: fd.area || '' }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -47,6 +54,12 @@ const ReportItem = ({ user }) => {
               location: data.location,
               date: data.date,
               contact: data.contact
+              ,
+              building: data.detailedLocation?.building || '',
+              block: data.detailedLocation?.block || '',
+              floor: data.detailedLocation?.floor || '',
+              room: data.detailedLocation?.room || '',
+              area: data.detailedLocation?.area || ''
             });
           } else {
             setError('Failed to load item details.');
@@ -64,6 +77,10 @@ const ReportItem = ({ user }) => {
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handleFilesChange = (e) => {
+    setFormData({ ...formData, images: e.target.files });
   };
 
   const handleSubmit = async (e) => {
@@ -85,13 +102,34 @@ const ReportItem = ({ user }) => {
     }
 
     try {
+      // Use FormData to support image upload
+      const body = new FormData();
+      body.append('name', formData.name);
+      body.append('category', formData.category);
+      body.append('description', formData.description || '');
+      body.append('type', formData.type);
+      body.append('location', formData.location);
+      body.append('date', formData.date);
+      body.append('contact', formData.contact);
+      // detailed location fields
+      if (formData.building) body.append('building', formData.building);
+      if (formData.block) body.append('block', formData.block);
+      if (formData.floor) body.append('floor', formData.floor);
+      if (formData.room) body.append('room', formData.room);
+      if (formData.area) body.append('area', formData.area);
+
+      if (formData.images && formData.images.length) {
+        for (let i = 0; i < formData.images.length; i += 1) {
+          body.append('images', formData.images[i]);
+        }
+      }
+
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${user.token}`
         },
-        body: JSON.stringify(formData)
+        body
       });
 
       if (response.ok) {
@@ -289,6 +327,42 @@ const ReportItem = ({ user }) => {
                 onChange={handleChange}
                 required
               />
+            </div>
+          </div>
+
+          {/* Detailed Location & Image Upload */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '20px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="form-group">
+                <label className="form-label">Building / Block</label>
+                <input type="text" name="building" className="form-control" placeholder="e.g. CSE Block" value={formData.building || ''} onChange={handleChange} />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Floor / Room</label>
+                <input type="text" name="floor" className="form-control" placeholder="e.g. 2nd Floor / R-203" value={formData.floor || ''} onChange={handleChange} />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Block</label>
+                <input type="text" name="block" className="form-control" placeholder="e.g. Block A" value={formData.block || ''} onChange={handleChange} />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Area / Notes</label>
+                <input type="text" name="area" className="form-control" placeholder="e.g. Near library steps" value={formData.area || ''} onChange={handleChange} />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Room</label>
+                <input type="text" name="room" className="form-control" placeholder="e.g. Room 101" value={formData.room || ''} onChange={handleChange} />
+              </div>
+            </div>
+
+            <div>
+              <label className="form-label">Upload Item Image(s)</label>
+              <input type="file" name="images" accept="image/*" multiple onChange={handleFilesChange} />
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '8px' }}>Optional — attach clear images to help matching.</p>
             </div>
           </div>
 

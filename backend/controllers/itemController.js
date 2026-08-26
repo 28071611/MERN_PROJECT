@@ -1,19 +1,34 @@
 import Item from '../models/Item.js';
 
 export const createItem = async (req, res) => {
-  const { name, category, description, type, location, date, contact } = req.body;
+  const { name, category, description, type, location, date, contact, building, block, floor, room, area } = req.body;
 
   if (!name || !category || !type || !location || !date || !contact) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
   try {
+    // Handle uploaded images (multer)
+    const images = (req.files && req.files.length > 0)
+      ? req.files.map(f => `/uploads/${f.filename}`)
+      : [];
+
+    const detailedLocation = {
+      building: building || '',
+      block: block || '',
+      floor: floor || '',
+      room: room || '',
+      area: area || ''
+    };
+
     const item = await Item.create({
       name,
       category,
       description,
+      images,
       type,
       location,
+      detailedLocation,
       date,
       contact,
       reporter: req.user._id || req.user.id,
@@ -104,9 +119,29 @@ export const updateItem = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to update this item' });
     }
 
+    // Prepare update payload
+    const updateData = { ...req.body };
+
+    // If new files uploaded, replace images array
+    if (req.files && req.files.length > 0) {
+      updateData.images = req.files.map(f => `/uploads/${f.filename}`);
+    }
+
+    // If detailed location fields are present, normalize them
+    const { building, block, floor, room, area } = req.body;
+    if (building || block || floor || room || area) {
+      updateData.detailedLocation = {
+        building: building || item.detailedLocation?.building || '',
+        block: block || item.detailedLocation?.block || '',
+        floor: floor || item.detailedLocation?.floor || '',
+        room: room || item.detailedLocation?.room || '',
+        area: area || item.detailedLocation?.area || ''
+      };
+    }
+
     const updatedItem = await Item.findByIdAndUpdate(
       req.params.id,
-      { ...req.body },
+      updateData,
       { new: true }
     );
 

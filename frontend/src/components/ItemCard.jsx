@@ -63,6 +63,12 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
           {item.name}
         </h3>
 
+        {item.images && item.images.length > 0 && (
+          <div style={{ marginBottom: '12px' }}>
+            <img src={item.images[0]} alt={item.name} style={{ maxWidth: '160px', maxHeight: '120px', objectFit: 'cover', borderRadius: '8px' }} />
+          </div>
+        )}
+
         <p style={{
           fontSize: '0.9rem',
           color: 'var(--text-secondary)',
@@ -135,6 +141,40 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
           </button>
         )}
 
+        {/* Claim button for non-owners when item is found */}
+        {item.status === 'active' && item.type === 'found' && !isOwner && currentUser && (
+          <button
+            onClick={async () => {
+              const verificationInfo = window.prompt('Enter verification info (e.g. lock screen text, case color, last 4 digits):');
+              if (!verificationInfo) return;
+              try {
+                const res = await fetch(`/api/items/${item._id || item.id}/claims`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.token}` },
+                  body: JSON.stringify({ verificationInfo, message: '' })
+                });
+                if (res.ok) {
+                  alert('Claim submitted. The reporter will review it.');
+                } else if (res.status === 401) {
+                  alert('Session expired. Please log in again.');
+                  localStorage.removeItem('user');
+                  window.location.href = '/login';
+                } else {
+                  const data = await res.json();
+                  alert(data.message || 'Failed to submit claim.');
+                }
+              } catch (err) {
+                console.error(err);
+                alert('Error submitting claim.');
+              }
+            }}
+            className="btn btn-warning"
+            style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+          >
+            Claim
+          </button>
+        )}
+
         <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
           {canModify && item.status === 'active' && onStatusChange && (
             <button
@@ -157,6 +197,55 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
               >
                 <Edit2 size={14} />
               </Link>
+              {/* Owner can view claims */}
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch(`/api/items/${item._id || item.id}/claims`, {
+                      headers: { 'Authorization': `Bearer ${currentUser.token}` }
+                    });
+                    if (res.ok) {
+                      const claims = await res.json();
+                      if (!claims.length) return alert('No claims yet.');
+                      const list = claims.map(c => `- ${c.claimantName}: ${c.verificationInfo} (${c.status})`).join('\n');
+                      // Prompt to accept a claim
+                      const pick = window.prompt(`Claims:\n${list}\n\nEnter the claimant name to accept/reject, or leave empty to close.`);
+                      if (!pick) return;
+                      const matched = claims.find(c => c.claimantName === pick);
+                      if (!matched) return alert('Claim not found.');
+                      const action = window.prompt('Type ACCEPT to accept this claim, or REJECT to reject');
+                      if (!action) return;
+                      const status = action.toLowerCase() === 'accept' || action.toLowerCase() === 'accepted' ? 'accepted' : 'rejected';
+                      const updateRes = await fetch(`/api/claims/${matched._id}/status`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.token}` },
+                        body: JSON.stringify({ status })
+                      });
+                      if (updateRes.ok) {
+                        alert(`Claim ${status}.`);
+                        window.location.reload();
+                      } else {
+                        const d = await updateRes.json();
+                        alert(d.message || 'Failed to update claim.');
+                      }
+                    } else if (res.status === 401) {
+                      alert('Session expired. Please log in again.');
+                      localStorage.removeItem('user');
+                      window.location.href = '/login';
+                    } else {
+                      alert('Failed to load claims.');
+                    }
+                  } catch (err) {
+                    console.error(err);
+                    alert('Error loading claims.');
+                  }
+                }}
+                className="btn btn-info"
+                title="View Claims"
+                style={{ padding: '8px', borderRadius: 'var(--radius-sm)' }}
+              >
+                View Claims
+              </button>
               <button
                 onClick={() => onDelete(item._id || item.id)}
                 className="btn btn-danger"
