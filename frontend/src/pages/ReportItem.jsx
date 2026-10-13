@@ -26,15 +26,13 @@ const ReportItem = ({ user }) => {
     type: 'lost',
     location: '',
     date: '',
-    contact: ''
+    contact: '',
+    building: '',
+    block: '',
+    floor: '',
+    room: '',
+    area: ''
   });
-
-  // Support detailed location and images
-  // fields: building, block, floor, room, area, images (FileList)
-  useEffect(() => {
-    setFormData(fd => ({ ...fd, building: fd.building || '', block: fd.block || '', floor: fd.floor || '', room: fd.room || '', area: fd.area || '' }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -140,7 +138,7 @@ const ReportItem = ({ user }) => {
           setError('Session expired. Please log in again.');
           // Clear invalid user data
           localStorage.removeItem('user');
-          window.location.href = '/login';
+          window.location.assign('/login');
         } else {
           setError(data.message || 'Operation failed.');
         }

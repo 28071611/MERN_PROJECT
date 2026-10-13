@@ -20,7 +20,7 @@ const Dashboard = ({ user }) => {
       } else if (response.status === 401) {
         setError('Session expired. Please log in again.');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.assign('/login');
       } else {
         setError('Failed to fetch reported items.');
       }
@@ -46,7 +46,7 @@ const Dashboard = ({ user }) => {
         } else if (response.status === 401) {
           setError('Session expired. Please log in again.');
           localStorage.removeItem('user');
-          window.location.href = '/login';
+          window.location.assign('/login');
         } else {
           setError('Failed to fetch reported items.');
         }
@@ -65,7 +65,7 @@ const Dashboard = ({ user }) => {
     if (!user || !user.token) {
       alert('Authentication error. Please log in again.');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      window.location.assign('/login');
       return;
     }
     
@@ -82,7 +82,7 @@ const Dashboard = ({ user }) => {
       } else if (response.status === 401) {
         alert('Session expired. Please log in again.');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.assign('/login');
       } else {
         alert('Failed to delete report.');
       }
@@ -95,7 +95,7 @@ const Dashboard = ({ user }) => {
     if (!user || !user.token) {
       alert('Authentication error. Please log in again.');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      window.location.assign('/login');
       return;
     }
     
@@ -114,7 +114,7 @@ const Dashboard = ({ user }) => {
       } else if (response.status === 401) {
         alert('Session expired. Please log in again.');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.assign('/login');
       } else {
         alert('Failed to update status.');
       }

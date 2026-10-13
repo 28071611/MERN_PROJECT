@@ -158,7 +158,7 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
                 } else if (res.status === 401) {
                   alert('Session expired. Please log in again.');
                   localStorage.removeItem('user');
-                  window.location.href = '/login';
+                  window.location.assign('/login');
                 } else {
                   const data = await res.json();
                   alert(data.message || 'Failed to submit claim.');
@@ -231,7 +231,7 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
                     } else if (res.status === 401) {
                       alert('Session expired. Please log in again.');
                       localStorage.removeItem('user');
-                      window.location.href = '/login';
+                      window.location.assign('/login');
                     } else {
                       alert('Failed to load claims.');
                     }

@@ -12,7 +12,7 @@ const AdminDashboard = ({ user }) => {
     if (!user || !user.token) {
       setError('Authentication error. Please log in again.');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      window.location.assign('/login');
       return;
     }
     
@@ -29,7 +29,7 @@ const AdminDashboard = ({ user }) => {
       } else if (statsRes.status === 401) {
         setError('Session expired. Please log in again.');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.assign('/login');
         return;
       }
 
@@ -43,7 +43,7 @@ const AdminDashboard = ({ user }) => {
       } else if (usersRes.status === 401) {
         setError('Session expired. Please log in again.');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.assign('/login');
         return;
       }
 
@@ -76,7 +76,7 @@ const AdminDashboard = ({ user }) => {
         } else if (statsRes.status === 401) {
           setError('Session expired. Please log in again.');
           localStorage.removeItem('user');
-          window.location.href = '/login';
+          window.location.assign('/login');
           return;
         }
 
@@ -89,7 +89,7 @@ const AdminDashboard = ({ user }) => {
         } else if (usersRes.status === 401) {
           setError('Session expired. Please log in again.');
           localStorage.removeItem('user');
-          window.location.href = '/login';
+          window.location.assign('/login');
           return;
         }
 
@@ -113,7 +113,7 @@ const AdminDashboard = ({ user }) => {
     if (!user || !user.token) {
       alert('Authentication error. Please log in again.');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      window.location.assign('/login');
       return;
     }
     
@@ -128,7 +128,7 @@ const AdminDashboard = ({ user }) => {
       } else if (response.status === 401) {
         alert('Session expired. Please log in again.');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.assign('/login');
       } else {
         alert('Could not complete deletion request.');
       }
@@ -143,7 +143,7 @@ const AdminDashboard = ({ user }) => {
     if (!user || !user.token) {
       alert('Authentication error. Please log in again.');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      window.location.assign('/login');
       return;
     }
     
@@ -158,7 +158,7 @@ const AdminDashboard = ({ user }) => {
       } else if (response.status === 401) {
         alert('Session expired. Please log in again.');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.assign('/login');
       } else {
         alert('Could not complete deletion request.');
       }

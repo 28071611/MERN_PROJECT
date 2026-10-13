@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { Search, Compass, SlidersHorizontal, Sparkles, X, ChevronRight } from 'lucide-react';
 import ItemCard from '../components/ItemCard';
 
@@ -30,13 +30,13 @@ const SearchItems = ({ user }) => {
   const [matchingItems, setMatchingItems] = useState([]);
   const [loadingMatches, setLoadingMatches] = useState(false);
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async (nextType = searchType, nextCategory = category, nextQuery = searchQuery, nextLocation = location) => {
     setLoading(true);
     try {
-      const typeParam = searchType ? `type=${searchType}` : '';
-      const catParam = category !== 'All Categories' ? `category=${encodeURIComponent(category)}` : '';
-      const queryParam = searchQuery ? `search=${encodeURIComponent(searchQuery)}` : '';
-      const locParam = location ? `location=${encodeURIComponent(location)}` : '';
+      const typeParam = nextType ? `type=${nextType}` : '';
+      const catParam = nextCategory !== 'All Categories' ? `category=${encodeURIComponent(nextCategory)}` : '';
+      const queryParam = nextQuery ? `search=${encodeURIComponent(nextQuery)}` : '';
+      const locParam = nextLocation ? `location=${encodeURIComponent(nextLocation)}` : '';
 
       const queryParts = [typeParam, catParam, queryParam, locParam].filter(Boolean);
       const queryStr = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
@@ -51,18 +51,21 @@ const SearchItems = ({ user }) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    const run = async () => {
-      await fetchItems();
-    };
-    run();
-  }, [searchType, category]);
+  }, [category, location, searchQuery, searchType]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    fetchItems();
+    fetchItems(searchType, category, searchQuery, location);
+  };
+
+  const handleTypeChange = (nextType) => {
+    setSearchType(nextType);
+    fetchItems(nextType, category, searchQuery, location);
+  };
+
+  const handleCategoryChange = (nextCategory) => {
+    setCategory(nextCategory);
+    fetchItems(searchType, nextCategory, searchQuery, location);
   };
 
   const handleViewMatches = async (item) => {
@@ -87,7 +90,7 @@ const SearchItems = ({ user }) => {
       } else if (response.status === 401) {
         alert('Session expired. Please log in again.');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.assign('/login');
       }
     } catch {
       console.error('Error fetching matches.');
@@ -102,7 +105,7 @@ const SearchItems = ({ user }) => {
     if (!user || !user.token) {
       alert('Authentication error. Please log in again.');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      window.location.assign('/login');
       return;
     }
     
@@ -119,7 +122,7 @@ const SearchItems = ({ user }) => {
       } else if (response.status === 401) {
         alert('Session expired. Please log in again.');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.assign('/login');
       } else {
         alert('Failed to delete report.');
       }
@@ -189,7 +192,7 @@ const SearchItems = ({ user }) => {
           <div style={{ display: 'flex', gap: '8px' }}>
             <button 
               type="button"
-              onClick={() => setSearchType('')}
+              onClick={() => handleTypeChange('')}
               className="btn"
               style={{
                 padding: '6px 12px',
@@ -204,7 +207,7 @@ const SearchItems = ({ user }) => {
             </button>
             <button 
               type="button"
-              onClick={() => setSearchType('lost')}
+              onClick={() => handleTypeChange('lost')}
               className="btn"
               style={{
                 padding: '6px 12px',
@@ -219,7 +222,7 @@ const SearchItems = ({ user }) => {
             </button>
             <button 
               type="button"
-              onClick={() => setSearchType('found')}
+              onClick={() => handleTypeChange('found')}
               className="btn"
               style={{
                 padding: '6px 12px',
@@ -239,7 +242,7 @@ const SearchItems = ({ user }) => {
             <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Category:</span>
             <select
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => handleCategoryChange(e.target.value)}
               className="form-control"
               style={{ padding: '6px 12px', fontSize: '0.85rem', minWidth: '160px' }}
             >
