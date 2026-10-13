@@ -43,8 +43,8 @@ const Home = ({ user }) => {
   return (
     <div className="animate-fade-in" style={{ padding: '60px 0' }}>
       {/* Hero Section */}
-      <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-        <h1 style={{
+      <div className="home-hero" style={{ textAlign: 'center', marginBottom: '80px' }}>
+        <h1 className="home-hero-title" style={{
           fontSize: '4.5rem',
           fontWeight: 600,
           background: 'linear-gradient(135deg, #fafafa 0%, #d4af37 50%, #f4cf57 100%)',
@@ -66,7 +66,7 @@ const Home = ({ user }) => {
           A centralized, modern lost and found portal facilitating rapid item identification, reporting, and matching for campuses, organizations, and neighborhoods.
         </p>
 
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+        <div className="home-actions" style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
           <Link to="/search" className="btn btn-primary" style={{ padding: '14px 28px' }}>
             <Search size={20} />
             Search Database

@@ -40,12 +40,12 @@ const Register = ({ onLogin }) => {
   };
 
   return (
-    <div className="animate-fade-in" style={{
+    <div className="glow-card animate-fade-in auth-card" style={{
       maxWidth: '450px',
       margin: '80px auto',
       padding: '40px',
       borderRadius: 'var(--radius-lg)'
-    }} className="glow-card">
+    }}>
       <div style={{ textAlign: 'center', marginBottom: '32px' }}>
         <h2 style={{ fontSize: '2rem', marginBottom: '8px' }}>Create Account</h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>

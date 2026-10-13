@@ -137,7 +137,7 @@ const SearchItems = ({ user }) => {
 
       {/* Filter and Search Form */}
       <form onSubmit={handleSearchSubmit} className="glow-card" style={{ padding: '24px', marginBottom: '40px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 150px', gap: '16px', marginBottom: '16px' }}>
+        <div className="search-filter-fields" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 150px', gap: '16px', marginBottom: '16px' }}>
           
           {/* Keyword Search */}
           <div className="form-group" style={{ marginBottom: 0 }}>

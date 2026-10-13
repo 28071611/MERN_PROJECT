@@ -17,7 +17,7 @@ const Navbar = ({ user, onLogout }) => {
       top: 0,
       zIndex: 100
     }}>
-      <div className="container" style={{
+      <div className="container navbar-content" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -32,7 +32,7 @@ const Navbar = ({ user, onLogout }) => {
           fontSize: '1.25rem',
           color: 'var(--text-primary)'
         }}>
-          <div style={{
+          <div className="navbar-links" style={{
             background: 'linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-secondary) 100%)',
             width: '40px',
             height: '40px',
