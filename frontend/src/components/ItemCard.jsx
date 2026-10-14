@@ -148,7 +148,7 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
               const verificationInfo = window.prompt('Enter verification info (e.g. lock screen text, case color, last 4 digits):');
               if (!verificationInfo) return;
               try {
-                const res = await fetch(`/api/items/${item._id || item.id}/claims`, {
+                const res = await fetch(`http://localhost:5000/api/items/${item._id || item.id}/claims`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.token}` },
                   body: JSON.stringify({ verificationInfo, message: '' })
@@ -201,7 +201,7 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
               <button
                 onClick={async () => {
                   try {
-                    const res = await fetch(`/api/items/${item._id || item.id}/claims`, {
+                    const res = await fetch(`http://localhost:5000/api/items/${item._id || item.id}/claims`, {
                       headers: { 'Authorization': `Bearer ${currentUser.token}` }
                     });
                     if (res.ok) {
@@ -216,7 +216,7 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
                       const action = window.prompt('Type ACCEPT to accept this claim, or REJECT to reject');
                       if (!action) return;
                       const status = action.toLowerCase() === 'accept' || action.toLowerCase() === 'accepted' ? 'accepted' : 'rejected';
-                      const updateRes = await fetch(`/api/claims/${matched._id}/status`, {
+                      const updateRes = await fetch(`http://localhost:5000/api/claims/${matched._id}/status`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.token}` },
                         body: JSON.stringify({ status })
