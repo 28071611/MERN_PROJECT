@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Search, Compass, SlidersHorizontal, Sparkles, X, ChevronRight } from 'lucide-react';
 import ItemCard from '../components/ItemCard';
 
@@ -15,6 +15,21 @@ const CATEGORIES = [
   'Other'
 ];
 
+const requestItems = async (type, category, searchQuery, location) => {
+  const typeParam = type ? `type=${type}` : '';
+  const categoryParam = category !== 'All Categories' ? `category=${encodeURIComponent(category)}` : '';
+  const queryParam = searchQuery ? `search=${encodeURIComponent(searchQuery)}` : '';
+  const locationParam = location ? `location=${encodeURIComponent(location)}` : '';
+  const queryString = [typeParam, categoryParam, queryParam, locationParam].filter(Boolean).join('&');
+  const response = await fetch(`http://localhost:5000/api/items${queryString ? `?${queryString}` : ''}`);
+
+  if (!response.ok) {
+    throw new Error(`Item search failed with status ${response.status}.`);
+  }
+
+  return response.json();
+};
+
 const SearchItems = ({ user }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,41 +45,50 @@ const SearchItems = ({ user }) => {
   const [matchingItems, setMatchingItems] = useState([]);
   const [loadingMatches, setLoadingMatches] = useState(false);
 
-  const fetchItems = useCallback(async (nextType = searchType, nextCategory = category, nextQuery = searchQuery, nextLocation = location) => {
-    setLoading(true);
+  const fetchItems = useCallback(async (nextType, nextCategory, nextQuery, nextLocation) => {
     try {
-      const typeParam = nextType ? `type=${nextType}` : '';
-      const catParam = nextCategory !== 'All Categories' ? `category=${encodeURIComponent(nextCategory)}` : '';
-      const queryParam = nextQuery ? `search=${encodeURIComponent(nextQuery)}` : '';
-      const locParam = nextLocation ? `location=${encodeURIComponent(nextLocation)}` : '';
-
-      const queryParts = [typeParam, catParam, queryParam, locParam].filter(Boolean);
-      const queryStr = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
-
-      const response = await fetch(`http://localhost:5000/api/items${queryStr}`);
-      if (response.ok) {
-        const data = await response.json();
-        setItems(data);
-      }
-    } catch {
-      console.error('Error fetching items.');
+      const data = await requestItems(nextType, nextCategory, nextQuery, nextLocation);
+      setItems(data);
+    } catch (error) {
+      console.error('Error fetching items:', error);
     } finally {
       setLoading(false);
     }
-  }, [category, location, searchQuery, searchType]);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadInitialItems = async () => {
+      try {
+        const data = await requestItems('', 'All Categories', '', '');
+        if (!cancelled) setItems(data);
+      } catch (error) {
+        if (!cancelled) console.error('Error fetching items:', error);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    loadInitialItems();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+    setLoading(true);
     fetchItems(searchType, category, searchQuery, location);
   };
 
   const handleTypeChange = (nextType) => {
     setSearchType(nextType);
+    setLoading(true);
     fetchItems(nextType, category, searchQuery, location);
   };
 
   const handleCategoryChange = (nextCategory) => {
     setCategory(nextCategory);
+    setLoading(true);
     fetchItems(searchType, nextCategory, searchQuery, location);
   };
 

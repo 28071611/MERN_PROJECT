@@ -1,13 +1,26 @@
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { MapPin, Calendar, Phone, Trash2, Edit2, CheckCircle, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }) => {
+  const [claimDialogOpen, setClaimDialogOpen] = useState(false);
+  const [claimsDialogOpen, setClaimsDialogOpen] = useState(false);
+  const [verificationInfo, setVerificationInfo] = useState('');
+  const [claimMessage, setClaimMessage] = useState('');
+  const [claims, setClaims] = useState([]);
+  const [claimsLoading, setClaimsLoading] = useState(false);
+  const [claimSubmitting, setClaimSubmitting] = useState(false);
+  const [claimActionId, setClaimActionId] = useState('');
+  const [claimError, setClaimError] = useState('');
+  const [claimSuccess, setClaimSuccess] = useState('');
+  const [isRecovered, setIsRecovered] = useState(item.status === 'recovered');
   const isOwner = currentUser && item.reporter === (currentUser._id || currentUser.id);
   const isAdmin = currentUser && currentUser.isAdmin;
   const canModify = isOwner || isAdmin;
 
   const getStatusBadge = () => {
-    if (item.status === 'recovered') {
+    if (isRecovered) {
       return <span className="badge badge-resolved">Resolved</span>;
     }
     return item.type === 'lost' ? (
@@ -17,7 +30,118 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
     );
   };
 
+  const handleUnauthorized = () => {
+    localStorage.removeItem('user');
+    window.location.assign('/login');
+  };
+
+  const handleSubmitClaim = async (event) => {
+    event.preventDefault();
+    setClaimError('');
+    setClaimSuccess('');
+    setClaimSubmitting(true);
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/items/${item._id || item.id}/claims`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${currentUser.token}`
+        },
+        body: JSON.stringify({
+          verificationInfo: verificationInfo.trim(),
+          message: claimMessage.trim()
+        })
+      });
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Could not submit your claim.');
+      }
+
+      setClaimSuccess('Claim submitted. The reporter will review your verification details.');
+    } catch (error) {
+      setClaimError(error.message || 'Could not connect to the server. Please try again.');
+    } finally {
+      setClaimSubmitting(false);
+    }
+  };
+
+  const handleOpenClaims = async () => {
+    setClaimsDialogOpen(true);
+    setClaimsLoading(true);
+    setClaimError('');
+    setClaimSuccess('');
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/items/${item._id || item.id}/claims`, {
+        headers: { Authorization: `Bearer ${currentUser.token}` }
+      });
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Could not load claims for this item.');
+      }
+
+      setClaims(data);
+    } catch (error) {
+      setClaimError(error.message || 'Could not connect to the server. Please try again.');
+    } finally {
+      setClaimsLoading(false);
+    }
+  };
+
+  const handleClaimDecision = async (claimId, status) => {
+    setClaimActionId(claimId);
+    setClaimError('');
+    setClaimSuccess('');
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/claims/${claimId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${currentUser.token}`
+        },
+        body: JSON.stringify({ status })
+      });
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || `Could not ${status} this claim.`);
+      }
+
+      setClaims((currentClaims) => currentClaims.map((claim) => (
+        claim._id === claimId ? { ...claim, status: data.status } : claim
+      )));
+      if (status === 'accepted') {
+        setIsRecovered(true);
+      }
+      setClaimSuccess(`Claim ${status}.`);
+    } catch (error) {
+      setClaimError(error.message || 'Could not connect to the server. Please try again.');
+    } finally {
+      setClaimActionId('');
+    }
+  };
+
   return (
+    <>
     <div className="glow-card animate-fade-in" style={{
       padding: '24px',
       display: 'flex',
@@ -33,7 +157,7 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
         left: 0,
         width: '100%',
         height: '4px',
-        background: item.status === 'recovered' 
+        background: isRecovered
           ? 'var(--text-muted)' 
           : item.type === 'lost' 
             ? 'var(--color-lost)' 
@@ -121,7 +245,7 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
         borderTop: '1px solid var(--color-border)',
         paddingTop: '16px'
       }}>
-        {item.status === 'active' && onViewMatches && (
+        {!isRecovered && onViewMatches && (
           <button 
             onClick={() => onViewMatches(item)} 
             className="btn btn-secondary"
@@ -142,31 +266,14 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
         )}
 
         {/* Claim button for non-owners when item is found */}
-        {item.status === 'active' && item.type === 'found' && !isOwner && currentUser && (
+        {!isRecovered && item.type === 'found' && !isOwner && currentUser && (
           <button
-            onClick={async () => {
-              const verificationInfo = window.prompt('Enter verification info (e.g. lock screen text, case color, last 4 digits):');
-              if (!verificationInfo) return;
-              try {
-                const res = await fetch(`http://localhost:5000/api/items/${item._id || item.id}/claims`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.token}` },
-                  body: JSON.stringify({ verificationInfo, message: '' })
-                });
-                if (res.ok) {
-                  alert('Claim submitted. The reporter will review it.');
-                } else if (res.status === 401) {
-                  alert('Session expired. Please log in again.');
-                  localStorage.removeItem('user');
-                  window.location.assign('/login');
-                } else {
-                  const data = await res.json();
-                  alert(data.message || 'Failed to submit claim.');
-                }
-              } catch (err) {
-                console.error(err);
-                alert('Error submitting claim.');
-              }
+            onClick={() => {
+              setVerificationInfo('');
+              setClaimMessage('');
+              setClaimError('');
+              setClaimSuccess('');
+              setClaimDialogOpen(true);
             }}
             className="btn btn-warning"
             style={{ padding: '6px 12px', fontSize: '0.75rem' }}
@@ -176,7 +283,7 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
         )}
 
         <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
-          {canModify && item.status === 'active' && onStatusChange && (
+          {canModify && !isRecovered && onStatusChange && (
             <button
               onClick={() => onStatusChange(item._id || item.id, 'recovered')}
               className="btn btn-success"
@@ -198,54 +305,16 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
                 <Edit2 size={14} />
               </Link>
               {/* Owner can view claims */}
-              <button
-                onClick={async () => {
-                  try {
-                    const res = await fetch(`http://localhost:5000/api/items/${item._id || item.id}/claims`, {
-                      headers: { 'Authorization': `Bearer ${currentUser.token}` }
-                    });
-                    if (res.ok) {
-                      const claims = await res.json();
-                      if (!claims.length) return alert('No claims yet.');
-                      const list = claims.map(c => `- ${c.claimantName}: ${c.verificationInfo} (${c.status})`).join('\n');
-                      // Prompt to accept a claim
-                      const pick = window.prompt(`Claims:\n${list}\n\nEnter the claimant name to accept/reject, or leave empty to close.`);
-                      if (!pick) return;
-                      const matched = claims.find(c => c.claimantName === pick);
-                      if (!matched) return alert('Claim not found.');
-                      const action = window.prompt('Type ACCEPT to accept this claim, or REJECT to reject');
-                      if (!action) return;
-                      const status = action.toLowerCase() === 'accept' || action.toLowerCase() === 'accepted' ? 'accepted' : 'rejected';
-                      const updateRes = await fetch(`http://localhost:5000/api/claims/${matched._id}/status`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentUser.token}` },
-                        body: JSON.stringify({ status })
-                      });
-                      if (updateRes.ok) {
-                        alert(`Claim ${status}.`);
-                        window.location.reload();
-                      } else {
-                        const d = await updateRes.json();
-                        alert(d.message || 'Failed to update claim.');
-                      }
-                    } else if (res.status === 401) {
-                      alert('Session expired. Please log in again.');
-                      localStorage.removeItem('user');
-                      window.location.assign('/login');
-                    } else {
-                      alert('Failed to load claims.');
-                    }
-                  } catch (err) {
-                    console.error(err);
-                    alert('Error loading claims.');
-                  }
-                }}
-                className="btn btn-info"
-                title="View Claims"
-                style={{ padding: '8px', borderRadius: 'var(--radius-sm)' }}
-              >
-                View Claims
-              </button>
+              {item.type === 'found' && (
+                <button
+                  onClick={handleOpenClaims}
+                  className="btn btn-info"
+                  title="View Claims"
+                  style={{ padding: '8px', borderRadius: 'var(--radius-sm)' }}
+                >
+                  View Claims
+                </button>
+              )}
               <button
                 onClick={() => onDelete(item._id || item.id)}
                 className="btn btn-danger"
@@ -259,6 +328,141 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
         </div>
       </div>
     </div>
+
+      {(claimDialogOpen || claimsDialogOpen) && createPortal(
+        <div
+          role="presentation"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setClaimDialogOpen(false);
+              setClaimsDialogOpen(false);
+            }
+          }}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1100,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            background: 'rgba(5, 7, 15, 0.82)',
+            backdropFilter: 'blur(8px)'
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="claim-dialog-title"
+            className="glow-card"
+            style={{ width: '100%', maxWidth: '560px', maxHeight: '85vh', overflowY: 'auto', padding: '28px' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+              <h2 id="claim-dialog-title" style={{ fontSize: '1.4rem' }}>
+                {claimDialogOpen ? 'Claim this item' : 'Claims for this item'}
+              </h2>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                aria-label="Close"
+                onClick={() => {
+                  setClaimDialogOpen(false);
+                  setClaimsDialogOpen(false);
+                }}
+                style={{ padding: '6px 10px' }}
+              >
+                Close
+              </button>
+            </div>
+
+            {claimError && <div className="alert-banner alert-banner-info" role="alert">{claimError}</div>}
+            {claimSuccess && <div className="alert-banner alert-banner-success" role="status">{claimSuccess}</div>}
+
+            {claimDialogOpen && (
+              claimSuccess ? null : (
+                <form onSubmit={handleSubmitClaim}>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor={`claim-verification-${item._id || item.id}`}>
+                      Ownership verification <span aria-hidden="true">*</span>
+                    </label>
+                    <textarea
+                      id={`claim-verification-${item._id || item.id}`}
+                      className="form-control"
+                      rows={3}
+                      value={verificationInfo}
+                      onChange={(event) => setVerificationInfo(event.target.value)}
+                      placeholder="Describe a detail that can verify this item is yours."
+                      required
+                      maxLength={1000}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor={`claim-message-${item._id || item.id}`}>Message (optional)</label>
+                    <textarea
+                      id={`claim-message-${item._id || item.id}`}
+                      className="form-control"
+                      rows={2}
+                      value={claimMessage}
+                      onChange={(event) => setClaimMessage(event.target.value)}
+                      maxLength={1000}
+                    />
+                  </div>
+                  <button className="btn btn-primary" type="submit" disabled={claimSubmitting || !verificationInfo.trim()}>
+                    {claimSubmitting ? 'Submitting…' : 'Submit claim'}
+                  </button>
+                </form>
+              )
+            )}
+
+            {claimsDialogOpen && (
+              claimsLoading ? (
+                <p role="status" style={{ color: 'var(--text-secondary)' }}>Loading claims…</p>
+              ) : claims.length === 0 && !claimError ? (
+                <p style={{ color: 'var(--text-secondary)' }}>No claims have been submitted for this item yet.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  {claims.map((claim) => (
+                    <article key={claim._id} style={{ padding: '16px', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginBottom: '10px' }}>
+                        <strong>{claim.claimantName}</strong>
+                        <span className={`badge ${claim.status === 'accepted' ? 'badge-resolved' : claim.status === 'rejected' ? 'badge-lost' : 'badge-found'}`}>
+                          {claim.status}
+                        </span>
+                      </div>
+                      <p style={{ color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                        <strong>Verification:</strong> {claim.verificationInfo || 'Not provided'}
+                      </p>
+                      {claim.message && <p style={{ color: 'var(--text-secondary)', marginBottom: '12px' }}>{claim.message}</p>}
+                      {claim.status === 'pending' && (
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                          <button
+                            type="button"
+                            className="btn btn-success"
+                            disabled={claimActionId === claim._id}
+                            onClick={() => handleClaimDecision(claim._id, 'accepted')}
+                          >
+                            {claimActionId === claim._id ? 'Saving…' : 'Accept'}
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-danger"
+                            disabled={claimActionId === claim._id}
+                            onClick={() => handleClaimDecision(claim._id, 'rejected')}
+                          >
+                            {claimActionId === claim._id ? 'Saving…' : 'Reject'}
+                          </button>
+                        </div>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              )
+            )}
+          </section>
+        </div>,
+        document.body
+      )}
+    </>
   );
 };
 

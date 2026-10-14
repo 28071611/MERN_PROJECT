@@ -128,6 +128,17 @@ npm run build
 
 The built files will be in the `frontend/dist` directory.
 
+### Seed Local Guide Data
+
+To add example lost, found, recovered, and pending-claim records for a walkthrough, configure `backend/.env` to use a local MongoDB database, then run:
+
+```bash
+cd backend
+npm run seed:guide
+```
+
+The seed is safe to run more than once. It only inserts records with fixed guide-data IDs when they do not already exist, and refuses to connect to a remote or production database. It uses the first admin account as the sample item's reporter when available, so an administrator can view and review the sample claim.
+
 ## 📡 API Endpoints
 
 ### Authentication
