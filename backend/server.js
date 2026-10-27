@@ -75,10 +75,21 @@ app.get('/api/admin/users', protect, adminOnly, getAllUsers);
 app.delete('/api/admin/users/:id', protect, adminOnly, deleteUser);
 app.get('/api/admin/stats', protect, adminOnly, getSystemStats);
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    status: 'success',
+    message: 'Lost and Found Portal API is running successfully',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Status endpoint
 app.get('/api/status', (req, res) => {
   res.json({ status: 'running', timestamp: new Date() });
 });
+
 
 // Port configuration
 const PORT = process.env.PORT || 5000;
