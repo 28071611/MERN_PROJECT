@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import { connectDB } from './config/db.js';
 import multer from 'multer';
 import path from 'path';
@@ -75,21 +76,50 @@ app.get('/api/admin/users', protect, adminOnly, getAllUsers);
 app.delete('/api/admin/users/:id', protect, adminOnly, deleteUser);
 app.get('/api/admin/stats', protect, adminOnly, getSystemStats);
 
-// Root endpoint
-app.get('/', (req, res) => {
+// Root endpoint and health checks
+app.get('/api/status', (req, res) => {
+  const dbStateMap = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  };
+  const dbState = mongoose.connection.readyState;
   res.json({
-    status: 'success',
-    message: 'Lost and Found Portal API is running successfully',
+    status: 'running',
+    database: dbStateMap[dbState] || 'unknown',
+    databaseHost: mongoose.connection.host || null,
     environment: process.env.NODE_ENV || 'development',
     timestamp: new Date().toISOString()
   });
 });
 
-// Status endpoint
-app.get('/api/status', (req, res) => {
-  res.json({ status: 'running', timestamp: new Date() });
-});
+// In production, serve frontend build if present
+const frontendDist = path.resolve(process.cwd(), '../frontend/dist');
+const localDist = path.resolve(process.cwd(), 'dist');
+const staticDist = fs.existsSync(frontendDist)
+  ? frontendDist
+  : (fs.existsSync(localDist) ? localDist : null);
 
+if (staticDist) {
+  app.use(express.static(staticDist));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next();
+    }
+    res.sendFile(path.join(staticDist, 'index.html'));
+  });
+} else {
+  // Root endpoint for API service
+  app.get('/', (req, res) => {
+    res.json({
+      status: 'success',
+      message: 'Lost and Found Portal API is running successfully',
+      environment: process.env.NODE_ENV || 'development',
+      timestamp: new Date().toISOString()
+    });
+  });
+}
 
 // Port configuration
 const PORT = process.env.PORT || 5000;

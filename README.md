@@ -128,6 +128,44 @@ npm run build
 
 The built files will be in the `frontend/dist` directory.
 
+### 🌐 Deploying to Render & MongoDB Atlas
+
+#### 1. Configure MongoDB Atlas Network Access (Crucial)
+Render uses dynamic IP addresses that change over time. MongoDB Atlas must allow connections from Render:
+1. Log into your [MongoDB Atlas Console](https://cloud.mongodb.com/).
+2. Under **Security** in the left sidebar, click **Network Access**.
+3. Click **+ Add IP Address**.
+4. Select **Allow Access From Anywhere** (`0.0.0.0/0`).
+5. Click **Confirm**. (Takes ~1 minute to apply).
+
+#### 2. Deploy to Render (Turnkey Blueprint or Manual Web Service)
+This repository includes a `render.yaml` blueprint for automatic configuration.
+
+**Option A — Automated Blueprint:**
+1. In [Render Dashboard](https://dashboard.render.com/), click **New +** > **Blueprint**.
+2. Connect this repository. Render automatically reads `render.yaml`.
+3. Set your `MONGO_URI` environment variable when prompted.
+4. Click **Apply**.
+
+**Option B — Manual Web Service:**
+1. Click **New +** > **Web Service**.
+2. Connect your repository.
+3. Configure the service:
+   - **Environment**: `Node`
+   - **Build Command**: `npm run build`
+   - **Start Command**: `npm start`
+   - **Health Check Path**: `/api/status`
+4. In the **Environment Variables** section, add:
+   - `NODE_ENV`: `production`
+   - `MONGO_URI`: `mongodb+srv://<username>:<password>@cluster0.../lostfound?retryWrites=true&w=majority`
+   - `JWT_SECRET`: `<any-strong-random-secret-key>`
+5. Click **Create Web Service**.
+
+#### 3. Health & Status Check
+Once deployed, check your Render URL:
+- App: `https://<your-service>.onrender.com`
+- API Status: `https://<your-service>.onrender.com/api/status` (reports database connection status and server health).
+
 ### Seed Local Guide Data
 
 To add example lost, found, recovered, and pending-claim records for a walkthrough, configure `backend/.env` to use a local MongoDB database, then run:

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Search, Compass, SlidersHorizontal, Sparkles, X, ChevronRight } from 'lucide-react';
 import ItemCard from '../components/ItemCard';
+import { API_BASE_URL } from '../config/api';
 
 const CATEGORIES = [
   'All Categories',
@@ -21,7 +22,7 @@ const requestItems = async (type, category, searchQuery, location) => {
   const queryParam = searchQuery ? `search=${encodeURIComponent(searchQuery)}` : '';
   const locationParam = location ? `location=${encodeURIComponent(location)}` : '';
   const queryString = [typeParam, categoryParam, queryParam, locationParam].filter(Boolean).join('&');
-  const response = await fetch(`http://localhost:5000/api/items${queryString ? `?${queryString}` : ''}`);
+  const response = await fetch(`${API_BASE_URL}/api/items${queryString ? `?${queryString}` : ''}`);
 
   if (!response.ok) {
     throw new Error(`Item search failed with status ${response.status}.`);
@@ -103,7 +104,7 @@ const SearchItems = ({ user }) => {
     setMatchingItems([]);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/items/${item._id || item.id}/matches`, {
+      const response = await fetch(`${API_BASE_URL}/api/items/${item._id || item.id}/matches`, {
         headers: {
           'Authorization': `Bearer ${user.token}`
         }
@@ -134,7 +135,7 @@ const SearchItems = ({ user }) => {
     }
     
     try {
-      const response = await fetch(`http://localhost:5000/api/items/${itemId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/items/${itemId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${user.token}`

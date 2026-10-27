@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Compass, ArrowRight, Activity, Smile, FileText } from 'lucide-react';
 import ItemCard from '../components/ItemCard';
+import { API_BASE_URL } from '../config/api';
 
 const Home = ({ user }) => {
   const [items, setItems] = useState([]);
@@ -15,7 +16,7 @@ const Home = ({ user }) => {
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/items');
+        const response = await fetch(`${API_BASE_URL}/api/items`);
         if (response.ok) {
           const data = await response.json();
           setItems(data.slice(0, 3)); // show top 3 recent items

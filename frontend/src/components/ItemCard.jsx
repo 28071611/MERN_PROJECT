@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MapPin, Calendar, Phone, Trash2, Edit2, CheckCircle, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL, getImageUrl } from '../config/api';
 
 const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }) => {
   const [claimDialogOpen, setClaimDialogOpen] = useState(false);
@@ -42,7 +43,7 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
     setClaimSubmitting(true);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/items/${item._id || item.id}/claims`, {
+      const response = await fetch(`${API_BASE_URL}/api/items/${item._id || item.id}/claims`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -79,7 +80,7 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
     setClaimSuccess('');
 
     try {
-      const response = await fetch(`http://localhost:5000/api/items/${item._id || item.id}/claims`, {
+      const response = await fetch(`${API_BASE_URL}/api/items/${item._id || item.id}/claims`, {
         headers: { Authorization: `Bearer ${currentUser.token}` }
       });
 
@@ -107,7 +108,7 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
     setClaimSuccess('');
 
     try {
-      const response = await fetch(`http://localhost:5000/api/claims/${claimId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/api/claims/${claimId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -189,7 +190,7 @@ const ItemCard = ({ item, currentUser, onDelete, onStatusChange, onViewMatches }
 
         {item.images && item.images.length > 0 && (
           <div style={{ marginBottom: '12px' }}>
-            <img src={item.images[0]} alt={item.name} style={{ maxWidth: '160px', maxHeight: '120px', objectFit: 'cover', borderRadius: '8px' }} />
+            <img src={getImageUrl(item.images[0])} alt={item.name} style={{ maxWidth: '160px', maxHeight: '120px', objectFit: 'cover', borderRadius: '8px' }} />
           </div>
         )}
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User, Mail, Calendar, FileSpreadsheet } from 'lucide-react';
 import ItemCard from '../components/ItemCard';
+import { API_BASE_URL } from '../config/api';
 
 const Dashboard = ({ user }) => {
   const [items, setItems] = useState([]);
@@ -9,7 +10,7 @@ const Dashboard = ({ user }) => {
 
   const fetchMyItems = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/items/my', {
+      const response = await fetch(`${API_BASE_URL}/api/items/my`, {
         headers: {
           'Authorization': `Bearer ${user.token}`
         }
@@ -36,7 +37,7 @@ const Dashboard = ({ user }) => {
     const run = async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:5000/api/items/my', {
+        const response = await fetch(`${API_BASE_URL}/api/items/my`, {
           headers: { 'Authorization': `Bearer ${user.token}` }
         });
         if (response.ok) {
@@ -70,7 +71,7 @@ const Dashboard = ({ user }) => {
     }
     
     try {
-      const response = await fetch(`http://localhost:5000/api/items/${itemId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/items/${itemId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${user.token}`
@@ -100,7 +101,7 @@ const Dashboard = ({ user }) => {
     }
     
     try {
-      const response = await fetch(`http://localhost:5000/api/items/${itemId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/items/${itemId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

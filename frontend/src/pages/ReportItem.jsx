@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FilePlus, Edit, ArrowLeft, Send } from 'lucide-react';
+import { API_BASE_URL } from '../config/api';
 
 const CATEGORIES = [
   'Mobile Phone',
@@ -41,7 +42,7 @@ const ReportItem = ({ user }) => {
     if (isEdit) {
       const fetchItemDetails = async () => {
         try {
-          const response = await fetch(`http://localhost:5000/api/items/${id}`);
+          const response = await fetch(`${API_BASE_URL}/api/items/${id}`);
           if (response.ok) {
             const data = await response.json();
             setFormData({
@@ -87,8 +88,8 @@ const ReportItem = ({ user }) => {
     setError('');
 
     const url = isEdit 
-      ? `http://localhost:5000/api/items/${id}`
-      : 'http://localhost:5000/api/items';
+      ? `${API_BASE_URL}/api/items/${id}`
+      : `${API_BASE_URL}/api/items`;
 
     const method = isEdit ? 'PUT' : 'POST';
 

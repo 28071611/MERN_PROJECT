@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ShieldAlert, Users, Trash, Award, Database, RefreshCw } from 'lucide-react';
+import { API_BASE_URL } from '../config/api';
 
 const AdminDashboard = ({ user }) => {
   const [stats, setStats] = useState(null);
@@ -20,7 +21,7 @@ const AdminDashboard = ({ user }) => {
     setError('');
     try {
       // Fetch Stats
-      const statsRes = await fetch('http://localhost:5000/api/admin/stats', {
+      const statsRes = await fetch(`${API_BASE_URL}/api/admin/stats`, {
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
       if (statsRes.ok) {
@@ -34,7 +35,7 @@ const AdminDashboard = ({ user }) => {
       }
 
       // Fetch Users list
-      const usersRes = await fetch('http://localhost:5000/api/admin/users', {
+      const usersRes = await fetch(`${API_BASE_URL}/api/admin/users`, {
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
       if (usersRes.ok) {
@@ -48,7 +49,7 @@ const AdminDashboard = ({ user }) => {
       }
 
       // Fetch all items list for direct control
-      const itemsRes = await fetch('http://localhost:5000/api/items');
+      const itemsRes = await fetch(`${API_BASE_URL}/api/items`);
       if (itemsRes.ok) {
         const itemsData = await itemsRes.json();
         setItemsList(itemsData);
@@ -67,7 +68,7 @@ const AdminDashboard = ({ user }) => {
       setError('');
       try {
         // Fetch Stats
-        const statsRes = await fetch('http://localhost:5000/api/admin/stats', {
+        const statsRes = await fetch(`${API_BASE_URL}/api/admin/stats`, {
           headers: { 'Authorization': `Bearer ${user.token}` }
         });
         if (statsRes.ok) {
@@ -80,7 +81,7 @@ const AdminDashboard = ({ user }) => {
           return;
         }
 
-        const usersRes = await fetch('http://localhost:5000/api/admin/users', {
+        const usersRes = await fetch(`${API_BASE_URL}/api/admin/users`, {
           headers: { 'Authorization': `Bearer ${user.token}` }
         });
         if (usersRes.ok) {
@@ -93,7 +94,7 @@ const AdminDashboard = ({ user }) => {
           return;
         }
 
-        const itemsRes = await fetch('http://localhost:5000/api/items');
+        const itemsRes = await fetch(`${API_BASE_URL}/api/items`);
         if (itemsRes.ok) {
           const itemsData = await itemsRes.json();
           setItemsList(itemsData);
@@ -118,7 +119,7 @@ const AdminDashboard = ({ user }) => {
     }
     
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
@@ -148,7 +149,7 @@ const AdminDashboard = ({ user }) => {
     }
     
     try {
-      const response = await fetch(`http://localhost:5000/api/items/${itemId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/items/${itemId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
