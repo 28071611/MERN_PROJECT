@@ -6,6 +6,10 @@ import { connectDB } from './config/db.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config();
@@ -22,7 +26,33 @@ import { protect, adminOnly } from './middleware/authMiddleware.js';
 const app = express();
 
 // Configure Middleware
-app.use(cors());
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://mern-project-v4x4.onrender.com',
+  // Allow all Firebase Hosting domains (including project-specific ones)
+  /^https:\/\/.*\.firebaseapp\.com$/,
+  /^https:\/\/.*\.web\.app$/,
+  // Allow any onrender.com subdomain (for Render preview deploys)
+  /^https:\/\/.*\.onrender\.com$/,
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (e.g., server-to-server, curl, Render health checks)
+    if (!origin) return callback(null, true);
+    const allowed = ALLOWED_ORIGINS.some((o) =>
+      typeof o === 'string' ? o === origin : o.test(origin)
+    );
+    if (allowed) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked request from origin: ${origin}`);
+      callback(new Error(`CORS policy: origin ${origin} not allowed`));
+    }
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 // Ensure uploads directory exists and serve it statically
@@ -95,14 +125,20 @@ app.get('/api/status', (req, res) => {
 });
 
 // In production, serve frontend build if present
-const frontendDist = path.resolve(process.cwd(), '../frontend/dist');
-const localDist = path.resolve(process.cwd(), 'dist');
-const staticDist = fs.existsSync(frontendDist)
-  ? frontendDist
-  : (fs.existsSync(localDist) ? localDist : null);
+const candidateDistPaths = [
+  path.resolve(__dirname, '..', 'frontend', 'dist'), // Relative to server.js in backend/
+  path.resolve(process.cwd(), 'frontend', 'dist'),   // When cwd is repo root
+  path.resolve(process.cwd(), '..', 'frontend', 'dist'), // When cwd is backend/
+  path.resolve(process.cwd(), 'dist'),
+  path.resolve(__dirname, 'dist')
+];
+
+const staticDist = candidateDistPaths.find((p) => fs.existsSync(path.join(p, 'index.html'))) || null;
 
 if (staticDist) {
+  console.log(`📁 Serving frontend static build from: ${staticDist}`);
   app.use(express.static(staticDist));
+  // Serve index.html for all non-API routes so React Router handles navigation
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
       return next();
@@ -110,7 +146,8 @@ if (staticDist) {
     res.sendFile(path.join(staticDist, 'index.html'));
   });
 } else {
-  // Root endpoint for API service
+  console.warn('⚠️ Frontend static build (index.html) not found. Serving API status endpoint on /.');
+  // Fallback root endpoint for standalone API service
   app.get('/', (req, res) => {
     res.json({
       status: 'success',

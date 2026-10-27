@@ -5,3 +5,9 @@ node_modules
 uploads
 dist
 !.env.example
+# Keep frontend/.env since it only stores a public API URL (no secrets)
+!frontend/.env
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
